@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f14">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Quick Cycle">
+  <title>Quick Cycle</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main id="setup" class="screen">
+    <h1>Quick Cycle</h1>
+    <ul id="fields" class="fields"></ul>
+    <p class="total">Total <strong id="setup-total"></strong></p>
+    <button id="start" class="btn primary">Start</button>
+    <p class="hint">On iPhone, use Share → Add to Home Screen for true full screen.</p>
+  </main>
+
+  <main id="workout" class="screen" hidden>
+    <header class="row">
+      <span id="w-round"></span>
+      <span id="w-remaining"></span>
+    </header>
+    <div class="center">
+      <div id="w-phase" class="phase"></div>
+      <div id="w-time" class="time"></div>
+      <div class="bar"><div id="w-phase-bar"></div></div>
+      <div id="w-next" class="next"></div>
+    </div>
+    <div class="bar thin"><div id="w-total-bar"></div></div>
+    <div class="controls">
+      <button id="pause" class="btn">Pause</button>
+      <button id="skip" class="btn">Skip</button>
+      <button id="end" class="btn" hidden>End</button>
+    </div>
+    <p id="w-wake" class="wake"></p>
+  </main>
+
+  <main id="done" class="screen" hidden>
+    <div class="center">
+      <div class="phase">Done</div>
+      <div id="done-summary" class="next"></div>
+    </div>
+    <button id="back" class="btn primary">Back</button>
+  </main>
+</body>
+</html>
