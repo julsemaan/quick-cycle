@@ -6,7 +6,7 @@ const FIELDS = [
   { key: "warmup", label: "Warm-up", step: 60, min: 0, max: 1800, value: 0, time: true },
   { key: "relaxed", label: "Relaxed", step: 15, min: 15, max: 1800, value: 240, time: true },
   { key: "intense", label: "Intense", step: 15, min: 15, max: 1800, value: 60, time: true },
-  { key: "rounds", label: "Rounds", step: 1, min: 1, max: 50, value: 5 },
+  { key: "rounds", label: "Rounds", step: 1, min: 1, max: 50, value: 4 },
   { key: "cooldown", label: "Cool-down", step: 60, min: 0, max: 1800, value: 0, time: true },
 ];
 const LABELS = Object.fromEntries(FIELDS.map((f) => [f.key, f.label]));
