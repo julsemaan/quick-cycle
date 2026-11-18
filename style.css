@@ -93,7 +93,12 @@ h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
 #setup .btn { flex: none; }
 
 /* Workout */
-#workout { background: var(--phase-color, var(--bg)); transition: background-color 0.4s; }
+/* Bottom room keeps the controls clear of Android's "swipe to exit full screen" toast. */
+#workout {
+  background: var(--phase-color, var(--bg));
+  transition: background-color 0.4s;
+  padding-bottom: max(7rem, env(safe-area-inset-bottom));
+}
 #workout[data-kind="warmup"] { --phase-color: var(--warmup); }
 #workout[data-kind="relaxed"] { --phase-color: var(--relaxed); }
 #workout[data-kind="intense"] { --phase-color: var(--intense); }
