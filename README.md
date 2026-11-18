@@ -4,6 +4,7 @@ Interval timer for indoor cycling. It's a static site with no build step, made f
 
 - Set the warm-up, relaxed and intense durations, the number of rounds and the cool-down. Settings are saved on the device.
 - The workout runs in full screen and keeps the screen awake (Screen Wake Lock API).
+- The timer keeps running when you switch tabs or apps. If the browser reloads the page, tap **Continue** to pick up where you left off.
 - The background color shows the phase. Beeps and vibration mark the last 3 seconds and each phase change.
 
 ## Deploy to GitHub Pages

@@ -89,7 +89,8 @@ h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
   font-weight: 600;
 }
 .btn:active { filter: brightness(1.2); }
-.btn.primary { background: var(--accent); color: #052e12; flex: none; }
+.btn.primary { background: var(--accent); color: #052e12; }
+#setup .btn { flex: none; }
 
 /* Workout */
 #workout { background: var(--phase-color, var(--bg)); transition: background-color 0.4s; }

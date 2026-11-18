@@ -11,6 +11,7 @@ const FIELDS = [
 ];
 const LABELS = Object.fromEntries(FIELDS.map((f) => [f.key, f.label]));
 const STORAGE_KEY = "quick-cycle:settings";
+const WORKOUT_KEY = "quick-cycle:workout";
 
 const $ = (id) => document.getElementById(id);
 const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
@@ -117,9 +118,13 @@ function renderWake() {
     wakeLock && !wakeLock.released ? "" : "Screen may sleep: check auto-lock";
 }
 
-// The browser drops the wake lock whenever the page is hidden.
+// The browser drops the wake lock whenever the page is hidden, and throttles
+// the tick, so catch up as soon as the rider comes back.
 document.addEventListener("visibilitychange", () => {
-  if (workout && document.visibilityState === "visible") requestWakeLock();
+  if (workout && document.visibilityState === "visible") {
+    requestWakeLock();
+    tick();
+  }
 });
 
 let audio;
@@ -152,28 +157,50 @@ function cue(name) {
 
 /* ---------- Workout ---------- */
 
-// All state derives from elapsed time, so the clock never drifts and
-// survives the tab being throttled or briefly backgrounded.
+// All state derives from elapsed wall-clock time, so the clock never drifts
+// and keeps running while the page is in the background. The run is saved so
+// it can be continued after the browser reloads or discards the page.
 let workout = null;
 
-const elapsedMs = () => workout.offset + (workout.resumedAt ? Date.now() - workout.resumedAt : 0);
+const elapsedMs = (w = workout) => w.offset + (w.resumedAt ? Date.now() - w.resumedAt : 0);
 
-function start() {
+function save() {
+  const { settings, offset, resumedAt } = workout;
+  localStorage.setItem(WORKOUT_KEY, JSON.stringify({ settings, offset, resumedAt }));
+}
+
+// Returns the saved run, or null when there is none or it ended while away.
+function loadSaved() {
+  const saved = JSON.parse(localStorage.getItem(WORKOUT_KEY));
+  if (!saved) return null;
+  const left = totalOf(buildPhases(saved.settings)) - elapsedMs(saved) / 1000;
+  if (left > 0) return { ...saved, left };
+  localStorage.removeItem(WORKOUT_KEY);
+  return null;
+}
+
+function renderContinue() {
+  const saved = loadSaved();
+  $("continue").hidden = !saved;
+  if (saved) $("continue").textContent = `Continue · ${fmt(Math.ceil(saved.left))} left`;
+}
+
+function start(saved = { settings: { ...settings }, offset: 0, resumedAt: Date.now() }) {
   audio ??= new AudioContext();
   audio.resume();
   enterFullscreen();
   requestWakeLock();
 
-  const phases = buildPhases(settings);
+  const phases = buildPhases(saved.settings);
   workout = {
+    ...saved,
     phases,
     total: totalOf(phases),
-    offset: 0,
-    resumedAt: Date.now(),
     index: -1,
     left: null,
     timer: setInterval(tick, 100),
   };
+  save();
   renderPaused();
   showScreen("workout");
   tick();
@@ -205,7 +232,7 @@ function tick() {
 function renderPhase(phase, next) {
   $("workout").dataset.kind = phase.kind;
   $("w-phase").textContent = LABELS[phase.kind];
-  $("w-round").textContent = phase.round ? `Round ${phase.round}/${settings.rounds}` : "";
+  $("w-round").textContent = phase.round ? `Round ${phase.round}/${workout.settings.rounds}` : "";
   $("w-next").textContent = next ? `Next: ${LABELS[next.kind]} ${fmt(next.duration)}` : "Last one!";
 }
 
@@ -223,23 +250,27 @@ function togglePause() {
   } else {
     workout.resumedAt = Date.now();
   }
+  save();
   renderPaused();
 }
 
 function skip() {
   const phase = workout.phases[workout.index];
   workout.offset += (phase.start + phase.duration) * 1000 - elapsedMs();
+  save();
   tick();
 }
 
 function stop() {
   clearInterval(workout.timer);
   releaseWakeLock();
+  localStorage.removeItem(WORKOUT_KEY);
   workout = null;
+  renderContinue();
 }
 
 function finish() {
-  $("done-summary").textContent = `${fmt(workout.total)} · ${settings.rounds} rounds`;
+  $("done-summary").textContent = `${fmt(workout.total)} · ${workout.settings.rounds} rounds`;
   stop();
   cue("finish");
   showScreen("done");
@@ -251,7 +282,9 @@ function end() {
 }
 
 renderSetup();
-$("start").addEventListener("click", start);
+renderContinue();
+$("start").addEventListener("click", () => start());
+$("continue").addEventListener("click", () => start(loadSaved()));
 $("pause").addEventListener("click", togglePause);
 $("skip").addEventListener("click", skip);
 $("end").addEventListener("click", end);
