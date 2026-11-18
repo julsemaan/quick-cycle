@@ -114,7 +114,7 @@ function releaseWakeLock() {
 
 function renderWake() {
   $("w-wake").textContent =
-    wakeLock && !wakeLock.released ? "Screen stays on" : "Screen may sleep: check auto-lock";
+    wakeLock && !wakeLock.released ? "" : "Screen may sleep: check auto-lock";
 }
 
 // The browser drops the wake lock whenever the page is hidden.
